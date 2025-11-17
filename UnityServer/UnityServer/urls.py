@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('unity/', include('unity_server.urls')),  # ← 여기서 앱 URL 연결
+    path('unity/', include('Server1.urls')),  # ← 여기서 앱 URL 연결
 ]
