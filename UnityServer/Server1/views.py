@@ -27,8 +27,8 @@ def unity_login(request):
             # 로그인 성공
             return JsonResponse({"success": True, "message": "로그인 성공"})
         else:
-            return JsonResponse({"success": False, "message": "아이디 또는 비번 틀림"})
-    return JsonResponse({"success": False, "message": "POST 요청만 허용"}, status=400)
+            return JsonResponse({"error": False, "message": "아이디 또는 비번 틀림"})
+    return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)
 
 @csrf_exempt
 def unity_register(request):
@@ -38,7 +38,7 @@ def unity_register(request):
         password = data.get("password")
 
         if User.objects.filter(username=username).exists():
-            return JsonResponse({"success": False, "message": "이미 계정이 있습니다."})
+            return JsonResponse({"error": False, "message": "이미 계정이 있습니다."})
 
         # 새 사용자 생성
         user = User.objects.create_user(username=username, password=password)
@@ -46,4 +46,4 @@ def unity_register(request):
 
         return JsonResponse({"success": True, "message": "회원가입 성공"})
     
-    return JsonResponse({"success": False, "message": "POST 요청만 허용"}, status=400)
+    return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)

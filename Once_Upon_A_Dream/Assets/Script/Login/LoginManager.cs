@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class LoginManager : MonoBehaviour
 {
@@ -43,6 +44,7 @@ public class LoginManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("로그인 성공! 응답: " + request.downloadHandler.text);
+            SceneManager.LoadScene("Play");
         }
         else
         {
@@ -63,10 +65,13 @@ public class LoginManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("회원가입 성공 : " + request.downloadHandler.text);
+            SceneManager.LoadScene("LogIn");
         }
         else
         {
             Debug.Log("회원가입 실패 : " + request.error);
         }
     }
+
+ 
 }
