@@ -4,11 +4,11 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
-import json
+import json, random
 from django.contrib.auth.models import User
-import random
 
 waiting_players = []
+active_matches = {}    # 매칭된 방 정보
 
 @csrf_exempt
 def unity_data(request):
@@ -57,15 +57,33 @@ def unity_ready(request):
     if request.method == "POST":
         data = json.loads(request.body)
         username = data.get("username")
-        waiting_players.append(username)
 
+        # 이미 매칭된 플레이어면 기존 방 정보 반환
+        if username in active_matches:
+            match_info = active_matches[username]
+            return JsonResponse({"match": True, "room": match_info["room"], "players": match_info["players"]})
+
+        # 아직 큐에 없는 경우만 추가
+        if username not in waiting_players:
+            waiting_players.append(username)
+
+        print("현재 대기 큐:", waiting_players)
+
+        # 대기 큐에 2명 이상이면 매칭
         if len(waiting_players) >= 2:
-            # 방 생성
             player1 = waiting_players.pop(0)
             player2 = waiting_players.pop(0)
             room_id = f"room_{random.randint(1000,9999)}"
 
-            # WebSocket 그룹에 추가 (나중에)
+            match_info = {"room": room_id, "players": [player1, player2]}
+
+            # 두 플레이어 모두에게 active_matches에 저장
+            active_matches[player1] = match_info
+            active_matches[player2] = match_info
+
             return JsonResponse({"match": True, "room": room_id, "players": [player1, player2]})
+
+        # 대기 중
         return JsonResponse({"match": False})
+
     return JsonResponse({"success": False}, status=400)

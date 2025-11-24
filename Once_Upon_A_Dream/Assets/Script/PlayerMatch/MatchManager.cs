@@ -11,6 +11,7 @@ public class MatchManager : MonoBehaviour
 
     public void SendMatchRequest()
     {
+        string username = Player.Instance.username; // 클라이언트별 독립
         MatchRequest req = new MatchRequest();
         req.username = username;
 
