@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 waiting_players = []
 active_matches = {}    # 매칭된 방 정보
 # 방 정보 저장 (임시, 실제로는 DB에)
-rooms = {}
+rooms = {}  
 
 @csrf_exempt
 def unity_data(request):
