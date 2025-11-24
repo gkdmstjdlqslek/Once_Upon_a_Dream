@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 
 waiting_players = []
 active_matches = {}    # 매칭된 방 정보
+# 방 정보 저장 (임시, 실제로는 DB에)
+rooms = {}
 
 @csrf_exempt
 def unity_data(request):
@@ -87,3 +89,26 @@ def unity_ready(request):
         return JsonResponse({"match": False})
 
     return JsonResponse({"success": False}, status=400)
+
+@csrf_exempt
+def choose_role(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get("username")
+        room_id = data.get("room")
+        chosen_role = data.get("chosenRole")
+
+        if room_id not in rooms:
+            return JsonResponse({"success": False, "message": "방이 존재하지 않습니다."})
+
+        room = rooms[room_id]
+
+        # 이미 선택된 역할이면 배정 안됨
+        if chosen_role in room["roles"].values():
+            return JsonResponse({"success": False, "message": "이미 선택된 역할입니다."})
+
+        # 역할 배정
+        room["roles"][username] = chosen_role
+        return JsonResponse({"success": True, "role": chosen_role})
+    
+    return JsonResponse({"success": False, "message": "POST 요청만 허용"}, status=400)

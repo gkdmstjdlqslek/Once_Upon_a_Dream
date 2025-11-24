@@ -42,6 +42,7 @@ public class MatchManager : MonoBehaviour
                     matched = true;
                     MatchFound.SetActive(true);
                     Debug.Log("매칭 완료! 방번호: " + res.room);
+
                     yield return new WaitForSeconds(3f);
                     SceneManager.LoadScene("Loading");
                 }
