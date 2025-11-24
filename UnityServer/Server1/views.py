@@ -6,6 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
 import json
 from django.contrib.auth.models import User
+import random
+
+waiting_players = []
 
 @csrf_exempt
 def unity_data(request):
@@ -47,3 +50,22 @@ def unity_register(request):
         return JsonResponse({"success": True, "message": "회원가입 성공"})
     
     return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)
+
+
+@csrf_exempt
+def unity_ready(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get("username")
+        waiting_players.append(username)
+
+        if len(waiting_players) >= 2:
+            # 방 생성
+            player1 = waiting_players.pop(0)
+            player2 = waiting_players.pop(0)
+            room_id = f"room_{random.randint(1000,9999)}"
+
+            # WebSocket 그룹에 추가 (나중에)
+            return JsonResponse({"match": True, "room": room_id, "players": [player1, player2]})
+        return JsonResponse({"match": False})
+    return JsonResponse({"success": False}, status=400)
