@@ -44,7 +44,7 @@ public class MatchManager : MonoBehaviour
                     Debug.Log("매칭 완료! 방번호: " + res.room);
 
                     yield return new WaitForSeconds(3f);
-                    SceneManager.LoadScene("Loading");
+                    SceneManager.LoadScene("Game3");  //원래는 Loading 들어가얗마!!
                 }
                 else
                 {
