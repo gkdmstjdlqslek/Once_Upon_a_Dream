@@ -6,21 +6,22 @@ public class PlayerController : MonoBehaviour
     public bool isMyTurn = false; // 역할 선택 후 활성화
 
     public float speed = 5f;
-    private Rigidbody rb;
+    private Rigidbody2D rb;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
-        if (!isMyTurn) return; // 선택 안 한 역할이면 움직이지 않음
+        if (!isMyTurn) return;
 
-        float h = Input.GetAxis("Horizontal"); // A/D, ←/→
-        float v = Input.GetAxis("Vertical");   // W/S, ↑/↓
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
 
-        Vector3 move = new Vector3(h, 0, v) * speed * Time.deltaTime;
-        rb.MovePosition(transform.position + move);
+        Vector2 move = new Vector2(h, v) * speed * Time.deltaTime;
+        transform.Translate(move);
+
     }
 }

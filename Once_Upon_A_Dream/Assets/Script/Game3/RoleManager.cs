@@ -8,22 +8,20 @@ public class RoleManager : MonoBehaviour
     public PlayerController roleAPlayer; // RoleA 캐릭터
     public PlayerController roleBPlayer; // RoleB 캐릭터
 
-    public string username; // 로그인 후 저장된 유저명
-    public string roomId;   // 매칭된 방 ID
-
     // 버튼에서 호출
-    public void ChooseRole(string chosenRole)
+    public void ChooseRole(string role)
     {
         RoleRequest req = new RoleRequest
         {
-            username = username,
-            room = roomId,
-            chosenRole = chosenRole
+            username = GameManager.Instance.username,
+            room = GameManager.Instance.roomId,
+            chosenRole = role
         };
+
         StartCoroutine(SendRoleRequest(req));
     }
 
-    private IEnumerator SendRoleRequest(RoleRequest req)
+    IEnumerator SendRoleRequest(RoleRequest req)
     {
         string json = JsonUtility.ToJson(req);
         UnityWebRequest request = new UnityWebRequest("http://127.0.0.1:8000/unity/choose_role/", "POST");
@@ -41,13 +39,13 @@ public class RoleManager : MonoBehaviour
             {
                 Debug.Log("내 역할: " + res.role);
 
-                // 선택한 역할 캐릭터만 움직이도록 활성화
-                roleAPlayer.isMyTurn = res.role == "RoleA";
-                roleBPlayer.isMyTurn = res.role == "RoleB";
+                // ★ 선택한 역할 캐릭터만 움직임 가능
+                roleAPlayer.isMyTurn = (res.role == "RoleA");
+                roleBPlayer.isMyTurn = (res.role == "RoleB");
 
-                // 씬 이동 예: 역할 선택 후 게임 씬으로
-                yield return new WaitForSeconds(1f); // 잠깐 대기
-                SceneManager.LoadScene("GameScene");
+                GameManager.Instance.chosenRole = res.role;
+                // 씬 이동
+                yield return new WaitForSeconds(1f);
             }
             else
             {

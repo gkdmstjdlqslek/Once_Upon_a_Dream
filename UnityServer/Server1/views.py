@@ -83,6 +83,9 @@ def unity_ready(request):
             active_matches[player1] = match_info
             active_matches[player2] = match_info
 
+             # rooms에도 생성
+            rooms[room_id] = {"players": [player1, player2], "roles": {}}
+
             return JsonResponse({"match": True, "room": room_id, "players": [player1, player2]})
 
         # 대기 중
