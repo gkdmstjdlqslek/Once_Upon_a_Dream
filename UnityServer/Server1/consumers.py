@@ -3,30 +3,37 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # 클라이언트에서 match_id를 쿼리스트링으로 보내온다고 가정
         self.match_id = self.scope['url_route']['kwargs']['match_id']
         self.room_name = f"match_{self.match_id}"
 
-        # 매치별 그룹에 참가
         await self.channel_layer.group_add(self.room_name, self.channel_name)
         await self.accept()
+        
+        print(f"[연결] match_id: {self.match_id}, channel: {self.channel_name}")
 
     async def disconnect(self, close_code):
-        # 그룹에서 나가기
         await self.channel_layer.group_discard(self.room_name, self.channel_name)
+        print(f"[연결 해제] match_id: {self.match_id}")
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-
-        # 매치 그룹에게만 메시지 전송
+        
+        print(f"[수신] match: {self.match_id}, type: {data.get('type')}, from: {data.get('username')}")
+        
+        # 자신의 channel_name을 데이터에 포함
         await self.channel_layer.group_send(
             self.room_name,
             {
                 "type": "game_message",
-                "payload": data
+                "payload": data,
+                "sender_channel": self.channel_name  # 발신자 식별
             }
         )
 
     async def game_message(self, event):
-        # 받은 데이터 그대로 해당 그룹 클라이언트에게 전달
+        # 자기가 보낸 메시지는 다시 받지 않음
+        if event.get("sender_channel") == self.channel_name:
+            return
+        
+        print(f"[전송] to channel: {self.channel_name}, type: {event['payload'].get('type')}")
         await self.send(text_data=json.dumps(event["payload"]))

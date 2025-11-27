@@ -47,12 +47,13 @@ public class RoleManager : MonoBehaviour
 
                 if (res.role == "RoleA")
                 {
-                    GameManager.Instance.otherPlayer = roleBPlayer.gameObject;
+                    NetworkManager.I.otherPlayer = roleBPlayer.gameObject;
                 }
                 else
                 {
-                    GameManager.Instance.otherPlayer = roleAPlayer.gameObject;
+                    NetworkManager.I.otherPlayer = roleAPlayer.gameObject;
                 }
+
 
                 yield return new WaitForSeconds(1f);
             }

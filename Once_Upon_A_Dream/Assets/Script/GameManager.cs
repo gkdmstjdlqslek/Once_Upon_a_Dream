@@ -1,23 +1,16 @@
 using UnityEngine;
-using WebSocketSharp;
-
-[System.Serializable]
-public class MoveMessage
-{
-    public string type;
-    public float x, y, z;
-}
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public string username;
-    public string roomId;
-    public string chosenRole;
+    public string username;   // 내 닉네임
+    public string roomId;     // 방 번호
+    public string chosenRole; // 내가 선택한 역할
 
-    private WebSocket ws;
-    public GameObject otherPlayer;
+    // 누가 어떤 역할인지 저장
+    public Dictionary<string, string> playerRoles = new Dictionary<string, string>();
 
     void Awake()
     {
@@ -26,47 +19,26 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else Destroy(gameObject);
-    }
-
-    public void ConnectToRoom()
-    {
-        ws = new WebSocket($"ws://localhost:8000/ws/game/{roomId}/");
-        ws.OnMessage += (sender, e) => OnMessage(e.Data);
-        ws.Connect();
-    }
-
-    private void OnMessage(string data)
-    {
-        var msg = JsonUtility.FromJson<MoveMsg>(data);
-
-        // 내 위치면 무시
-        if (msg.username == username) return;
-
-        // 상대 캐릭터에 위치 적용
-        if (otherPlayer != null)
+        else
         {
-            otherPlayer.transform.position = new Vector2(msg.x, msg.y);
+            Destroy(gameObject);
         }
     }
 
-    public void SendPosition(Vector3 pos)
+    // 역할 정보 업데이트
+    public void SetPlayerRole(string username, string role)
     {
-        if (ws != null && ws.IsAlive)
-        {
-            MoveMessage msg = new MoveMessage
-            {
-                type = "move",
-                x = pos.x,
-                y = pos.y,
-                z = pos.z
-            };
-            ws.Send(JsonUtility.ToJson(msg));
-        }
+        if (playerRoles.ContainsKey(username))
+            playerRoles[username] = role;
+        else
+            playerRoles.Add(username, role);
     }
 
-    void OnDestroy()
+    // 역할 가져오기
+    public string GetPlayerRole(string username)
     {
-        if (ws != null) ws.Close();
+        if (playerRoles.TryGetValue(username, out var role))
+            return role;
+        return null;
     }
 }

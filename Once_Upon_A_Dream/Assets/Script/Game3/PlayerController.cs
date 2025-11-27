@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
         Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
 
+        Debug.Log("보낸 위치: " + rb.position);
+
         // 위치 서버에 보내기
         NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
