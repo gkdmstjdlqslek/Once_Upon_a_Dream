@@ -1,15 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public string username;   // ë‚´ ë‹‰ë„¤ì„
+    public string roomId;     // ë°© ë²ˆí˜¸
+    public string chosenRole; // ë‚´ê°€ ì„ íƒí•œ ì—­í• 
 
-    public string username;   // ³» ´Ğ³×ÀÓ
-    public string roomId;     // ¹æ ¹øÈ£
-    public string chosenRole; // ³»°¡ ¼±ÅÃÇÑ ¿ªÇÒ
-
-    // ´©°¡ ¾î¶² ¿ªÇÒÀÎÁö ÀúÀå
+    // ëˆ„ê°€ ì–´ë–¤ ì—­í• ì¸ì§€ ì €ì¥
     public Dictionary<string, string> playerRoles = new Dictionary<string, string>();
 
     void Awake()
@@ -25,20 +25,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ¿ªÇÒ Á¤º¸ ¾÷µ¥ÀÌÆ®
+    // ì—­í•  ì •ë³´ ì—…ë°ì´íŠ¸
     public void SetPlayerRole(string username, string role)
     {
         if (playerRoles.ContainsKey(username))
             playerRoles[username] = role;
         else
             playerRoles.Add(username, role);
+
+        Debug.Log($"[ì—­í•  ì„¤ì •] {username} -> {role}");
+
     }
 
-    // ¿ªÇÒ °¡Á®¿À±â
-    public string GetPlayerRole(string username)
-    {
-        if (playerRoles.TryGetValue(username, out var role))
-            return role;
-        return null;
-    }
+
 }
