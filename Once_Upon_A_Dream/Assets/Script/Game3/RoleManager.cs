@@ -44,7 +44,16 @@ public class RoleManager : MonoBehaviour
                 roleBPlayer.isMyTurn = (res.role == "RoleB");
 
                 GameManager.Instance.chosenRole = res.role;
-                // æ¿ ¿Ãµø
+
+                if (res.role == "RoleA")
+                {
+                    GameManager.Instance.otherPlayer = roleBPlayer.gameObject;
+                }
+                else
+                {
+                    GameManager.Instance.otherPlayer = roleAPlayer.gameObject;
+                }
+
                 yield return new WaitForSeconds(1f);
             }
             else

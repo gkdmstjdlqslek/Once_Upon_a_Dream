@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public string role; // 내 역할(RoleA, RoleB 등)
-    public bool isMyTurn = false; // 역할 선택 후 활성화
+    public bool isMyTurn = false;
 
     public float speed = 5f;
     private Rigidbody2D rb;
@@ -13,15 +13,18 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (!isMyTurn) return;
 
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
-        Vector2 move = new Vector2(h, v) * speed * Time.deltaTime;
-        transform.Translate(move);
+        Vector2 move = new Vector2(h, v).normalized * speed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + move);
 
+        // 위치 서버에 보내기
+        NetworkManager.I.SendMove(GameManager.Instance.username, rb.position);
     }
+
 }
