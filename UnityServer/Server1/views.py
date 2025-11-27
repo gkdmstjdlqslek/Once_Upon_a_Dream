@@ -4,8 +4,13 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
-import json
+import json, random
 from django.contrib.auth.models import User
+
+waiting_players = []
+active_matches = {}    # 매칭된 방 정보
+# 방 정보 저장 (임시, 실제로는 DB에)
+rooms = {}  
 
 @csrf_exempt
 def unity_data(request):
@@ -47,3 +52,66 @@ def unity_register(request):
         return JsonResponse({"success": True, "message": "회원가입 성공"})
     
     return JsonResponse({"error": False, "message": "POST 요청만 허용"}, status=400)
+
+
+@csrf_exempt
+def unity_ready(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get("username")
+
+        # 이미 매칭된 플레이어면 기존 방 정보 반환
+        if username in active_matches:
+            match_info = active_matches[username]
+            return JsonResponse({"match": True, "room": match_info["room"], "players": match_info["players"]})
+
+        # 아직 큐에 없는 경우만 추가
+        if username not in waiting_players:
+            waiting_players.append(username)
+
+        print("현재 대기 큐:", waiting_players)
+
+        # 대기 큐에 2명 이상이면 매칭
+        if len(waiting_players) >= 2:
+            player1 = waiting_players.pop(0)
+            player2 = waiting_players.pop(0)
+            room_id = f"room_{random.randint(1000,9999)}"
+
+            match_info = {"room": room_id, "players": [player1, player2]}
+
+            # 두 플레이어 모두에게 active_matches에 저장
+            active_matches[player1] = match_info
+            active_matches[player2] = match_info
+
+             # rooms에도 생성
+            rooms[room_id] = {"players": [player1, player2], "roles": {}}
+
+            return JsonResponse({"match": True, "room": room_id, "players": [player1, player2]})
+
+        # 대기 중
+        return JsonResponse({"match": False})
+
+    return JsonResponse({"success": False}, status=400)
+
+@csrf_exempt
+def choose_role(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get("username")
+        room_id = data.get("room")
+        chosen_role = data.get("chosenRole")
+
+        if room_id not in rooms:
+            return JsonResponse({"success": False, "message": "방이 존재하지 않습니다."})
+
+        room = rooms[room_id]
+
+        # 이미 선택된 역할이면 배정 안됨
+        if chosen_role in room["roles"].values():
+            return JsonResponse({"success": False, "message": "이미 선택된 역할입니다."})
+
+        # 역할 배정
+        room["roles"][username] = chosen_role
+        return JsonResponse({"success": True, "role": chosen_role})
+    
+    return JsonResponse({"success": False, "message": "POST 요청만 허용"}, status=400)

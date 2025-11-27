@@ -44,6 +44,7 @@ public class LoginManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("로그인 성공! 응답: " + request.downloadHandler.text);
+            GameManager.Instance.username = nameInput.text;
             SceneManager.LoadScene("Play");
         }
         else
